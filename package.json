@@ -9,19 +9,28 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/multer": "^2.0.0",
+    "@xenova/transformers": "^2.17.2",
+    "compromise": "^14.14.4",
+    "multer": "^2.0.2",
+    "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.3"
+    "recipe-ingredient-parser": "^1.5.6",
+    "sharp": "^0.34.3",
+    "tesseract.js": "^5.0.5",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.8"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
