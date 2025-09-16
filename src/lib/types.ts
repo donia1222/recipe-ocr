@@ -62,7 +62,7 @@ export interface CreateRecipeData {
   servings?: number
   totalTime?: string
   notes?: string
-  ingredients: Omit<Ingredient, 'id' | 'recipeId'>[]
-  steps: Omit<Step, 'id' | 'recipeId'>[]
+  ingredients: Omit<Ingredient, 'id' | 'recipeId' | 'sortOrder'>[]
+  steps: Omit<Step, 'id' | 'recipeId' | 'sortOrder'>[]
   categories?: string[]
 }
