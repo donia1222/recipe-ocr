@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
-import { v4 as uuidv4 } from 'uuid'
+// Removed unused imports
 import { z } from 'zod'
 import { preprocessForOCR } from '@/lib/ocr/image-processor'
 import { fixCommonOcrErrors } from '@/lib/ocr/german-text-corrector'
 import { parseGermanRecipe } from '@/lib/ocr/german-recipe-parser'
-import { TESS_LANG, TESS_OPTIONS, createOCRWorker } from '@/lib/ocr/tesseract-config'
+// Removed unused imports from tesseract-config
 import { hybridOCREngine } from '@/lib/ocr/hybrid-ocr-engine'
 import { aiRecipeParser } from '@/lib/ocr/ai-recipe-parser'
-import { parseRecipeSimple } from '@/lib/ocr/simple-recipe-parser'
+// Removed unused import
 
 // Force dynamic to avoid static generation issues with tesseract
 export const dynamic = 'force-dynamic'
@@ -23,8 +21,6 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('image') as File
     // Forzar solo alemán
-    const languages = 'deu'
-
     const { languages: validatedLanguages } = uploadSchema.parse({ languages: 'deu' })
 
     if (!file) {

@@ -1,4 +1,4 @@
-import { pipeline } from '@xenova/transformers';
+import { pipeline, ImageToTextPipeline } from '@xenova/transformers';
 import { createOCRWorker, TESS_LANG } from './tesseract-config';
 
 export interface HybridOCRResult {
@@ -9,8 +9,8 @@ export interface HybridOCRResult {
 }
 
 export class HybridOCREngine {
-  private trocrPrintedPipeline: any = null;
-  private trocrHandwrittenPipeline: any = null;
+  private trocrPrintedPipeline: ImageToTextPipeline | null = null;
+  private trocrHandwrittenPipeline: ImageToTextPipeline | null = null;
   private isInitialized = false;
 
   async initialize(): Promise<void> {
@@ -112,10 +112,11 @@ export class HybridOCREngine {
       const result = await pipeline(base64Image);
 
       // TrOCR no proporciona confidence score, lo estimamos por longitud y coherencia
-      const estimatedConfidence = this.estimateConfidence(result[0]?.generated_text || '');
+      const text = Array.isArray(result) ? (result[0] as { generated_text?: string })?.generated_text || '' : (result as { generated_text?: string })?.generated_text || '';
+      const estimatedConfidence = this.estimateConfidence(text);
 
       return {
-        text: result[0]?.generated_text || '',
+        text,
         confidence: estimatedConfidence,
         method: type === 'printed' ? 'trocr-printed' : 'trocr-handwritten'
       };

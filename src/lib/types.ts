@@ -49,6 +49,12 @@ export interface OCRResult {
     servings?: string
     totalTime?: string
   }
+  metadata?: {
+    filename?: string
+    size?: number
+    processedAt?: string
+    languages?: string
+  }
 }
 
 export interface CreateRecipeData {

@@ -1,5 +1,5 @@
 import { TextCorrector } from './text-corrector'
-import { parseWithNLP, EnhancedParsedRecipe } from './nlp-recipe-parser'
+import { parseWithNLP } from './nlp-recipe-parser'
 
 export class TextParser {
   private corrector = new TextCorrector()
@@ -231,7 +231,7 @@ export class TextParser {
       .trim()
   }
 
-  private cleanStep(step: string, counter: number): string {
+  private cleanStep(step: string, _counter: number): string {
     let cleaned = step
       .replace(/^[\d\.\)\-\*\+]\s*/, '')
       .replace(/^(paso|step|schritt)\s*\d+[\.\:\-\s]*/i, '')

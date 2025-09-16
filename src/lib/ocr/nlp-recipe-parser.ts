@@ -171,7 +171,7 @@ export class NLPRecipeParser {
     return hasVerb && line.length > 20;
   }
 
-  private extractIngredientLines(lines: string[], sections: any): string[] {
+  private extractIngredientLines(lines: string[], sections: { ingredientsStart: number; stepsStart: number }): string[] {
     const { ingredientsStart, stepsStart } = sections;
 
     if (ingredientsStart === -1) return [];
@@ -195,7 +195,7 @@ export class NLPRecipeParser {
     return ingredientLines;
   }
 
-  private parseIngredients(lines: string[], language: string): any[] {
+  private parseIngredients(lines: string[], language: string): Array<{ raw: string; quantity?: number; unit?: string; ingredient?: string; preparation?: string }> {
     return lines.map(line => {
       try {
         // Intentar parser especializado primero
@@ -208,10 +208,10 @@ export class NLPRecipeParser {
 
         return {
           raw: line,
-          quantity: parsed.quantity,
-          unit: parsed.unit,
-          ingredient: parsed.ingredient,
-          preparation: parsed.preparation
+          quantity: typeof parsed.quantity === 'string' ? parseFloat(parsed.quantity) || undefined : parsed.quantity,
+          unit: parsed.unit || undefined,
+          ingredient: parsed.ingredient || undefined,
+          preparation: (parsed as { preparation?: string }).preparation || undefined
         };
       } catch {
         // Fallback para líneas problemáticas
@@ -223,7 +223,7 @@ export class NLPRecipeParser {
     });
   }
 
-  private parseGermanIngredient(line: string): any {
+  private parseGermanIngredient(line: string): { raw: string; quantity?: number; unit?: string; ingredient: string } {
     const result = {
       raw: line,
       quantity: undefined as number | undefined,
@@ -252,7 +252,7 @@ export class NLPRecipeParser {
     return result;
   }
 
-  private extractStepLines(lines: string[], sections: any): string[] {
+  private extractStepLines(lines: string[], sections: { stepsStart: number }): string[] {
     const { stepsStart } = sections;
 
     if (stepsStart === -1) return [];
@@ -289,7 +289,7 @@ export class NLPRecipeParser {
     return stepLines;
   }
 
-  private parseSteps(lines: string[], language: string): string[] {
+  private parseSteps(lines: string[], _language: string): string[] {
     return lines.map(line => {
       // Limpiar números de paso y formatear
       return line

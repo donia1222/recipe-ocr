@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid recipe data', details: error.errors },
+        { error: 'Invalid recipe data', details: error.issues },
         { status: 400 }
       )
     }

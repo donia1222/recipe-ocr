@@ -1,4 +1,4 @@
-import { pipeline } from '@xenova/transformers';
+import { pipeline, Text2TextGenerationPipeline } from '@xenova/transformers';
 
 export interface AIRecipeResult {
   title: string;
@@ -16,7 +16,7 @@ export interface AIRecipeResult {
 }
 
 export class AIRecipeParser {
-  private textGenerationPipeline: any = null;
+  private textGenerationPipeline: Text2TextGenerationPipeline | null = null;
   private isInitialized = false;
 
   async initialize(): Promise<void> {
@@ -147,10 +147,10 @@ export class AIRecipeParser {
       /(mascarpone|butter|zucker|mehl|sahne|milch|eier?|salz|pfeffer|zwiebeln?|knoblauch|tomaten|käse|schinken|paprika)/gi
     ];
 
-    genericIngredientPatterns.forEach((pattern, patternIndex) => {
+    genericIngredientPatterns.forEach((pattern) => {
       let match;
       while ((match = pattern.exec(text)) !== null) {
-        let ingredient = {
+        const ingredient = {
           quantity: match[1] || '',
           unit: match[2] || '',
           item: match[3] || match[1] || match[0]
@@ -233,13 +233,17 @@ export class AIRecipeParser {
     const prompt = this.createParsingPrompt(text);
 
     try {
-      const result = await this.textGenerationPipeline(prompt, {
+      const result = await this.textGenerationPipeline!(prompt, {
         max_new_tokens: 300,
         temperature: 0.1,
         do_sample: false
       });
 
-      const parsedResult = this.parseAIResponse(result[0]?.generated_text || '');
+      const parsedResult = this.parseAIResponse(
+        Array.isArray(result)
+          ? (result[0] as { generated_text?: string })?.generated_text || ''
+          : (result as { generated_text?: string })?.generated_text || ''
+      );
 
       return {
         ...parsedResult,
@@ -409,29 +413,9 @@ Response:`;
     };
   }
 
-  private looksLikeIngredient(line: string): boolean {
-    // Limpiar la línea para análisis
-    const cleanLine = line.replace(/^\s*[•\-\*]\s*/, '').trim();
+  // Method removed - was unused
 
-    return !!(
-      line.match(/^\s*[•\-\*]/) || // Bullets explícitos
-      line.match(/^\d+\s*(paket|pakete|packung)/i) || // "2 Pakete Mascarpone"
-      line.match(/à\s*\d+g/i) || // "à 250g"
-      line.match(/^\d+\s*(g|kg|ml|l|tasse|löffel|stück|ei|eier|esslöffel)/i) || // Cantidades
-      line.match(/\b(mascarpone|zucker|eigelb|butter|mehl|sahne|löffelbisquits|kaffee|amaretto|cognac|kakaopulver)\b/i) || // Ingredientes específicos
-      // Patrones adicionales para el OCR problemático
-      (cleanLine.match(/\d+/) && cleanLine.match(/\b(mascarpone|löffelbisquits|kaffee|amaretto|cognac|zucker|kakaopulver)\b/i)) ||
-      line.match(/eine\s+(ausreichende\s+)?packung/i) // "Eine ausreichende Packung"
-    );
-  }
-
-  private looksLikeStep(line: string): boolean {
-    return !!(
-      line.match(/^schritt\s*\d+/i) ||
-      line.match(/^\d+[\.\)]\s/) ||
-      (line.length > 30 && line.match(/\b(mischen|rühren|geben|lassen|backen|kochen)\b/i))
-    );
-  }
+  // Method removed - was unused
 
   private extractServings(text: string): number | undefined {
     const match = text.match(/(\d+)\s*(?:portion|person|serv)/i);
@@ -455,7 +439,7 @@ Response:`;
     return Math.min(score, 100);
   }
 
-  private estimateRegexConfidence(ingredients: any[], steps: string[], text: string): number {
+  private estimateRegexConfidence(ingredients: AIRecipeResult['ingredients'], steps: string[], text: string): number {
     let score = 30; // Base para regex
 
     if (ingredients.length > 2) score += 25;
